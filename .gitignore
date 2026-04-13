@@ -1,0 +1,19 @@
+# Go
+backend/tmp/
+backend/build-errors.log
+
+# Static embed placeholder (built by Dockerfile)
+backend/static/
+!backend/static/.gitkeep
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.pnpm-store/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store

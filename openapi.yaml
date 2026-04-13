@@ -1,0 +1,489 @@
+openapi: "3.0.3"
+info:
+  title: 献立メモ API
+  version: "1.0.0"
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/oidc-config:
+    get:
+      operationId: getOIDCConfig
+      summary: OIDC クライアント設定を取得する（認証不要）
+      security: []
+      responses:
+        "200":
+          description: OIDC 設定
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OIDCConfig"
+
+  /api/userinfo:
+    get:
+      operationId: getUserInfo
+      summary: ログイン中のユーザー情報を取得する
+      security: []
+      responses:
+        "200":
+          description: ユーザー情報
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/blocks:
+    get:
+      operationId: listBlocks
+      summary: ブロック一覧を取得する
+      responses:
+        "200":
+          description: ブロック一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BlockSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createBlock
+      summary: 新しいブロックを作成する（アーカイブなし）
+      responses:
+        "201":
+          description: 作成したブロック
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/blocks/current:
+    get:
+      operationId: getCurrentBlock
+      summary: 現在のブロックを取得する（存在しない場合は自動作成）
+      responses:
+        "200":
+          description: 現在のブロック
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/blocks/{id}:
+    get:
+      operationId: getBlock
+      summary: ブロックを取得する
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        "200":
+          description: ブロック
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteBlock
+      summary: ブロックを削除する（最後に作成された未アーカイブのブロックのみ可）
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        "204":
+          description: 削除成功
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/blocks/{id}/archive:
+    post:
+      operationId: archiveBlockById
+      summary: 指定ブロックをアーカイブする（未アーカイブの中で最古のブロックのみ可）
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        "200":
+          description: アーカイブしたブロック
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/blocks/{id}/unarchive:
+    post:
+      operationId: unarchiveBlock
+      summary: 指定ブロックのアーカイブを解除する（アーカイブ済みの中で最新のブロックのみ可）
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        "200":
+          description: アーカイブ解除したブロック
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Block"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/days:
+    post:
+      operationId: createDay
+      summary: 日エントリを追加する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDayRequest"
+      responses:
+        "201":
+          description: 作成した日エントリ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DayEntry"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/days/{id}:
+    put:
+      operationId: updateDay
+      summary: 日エントリを更新する
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDayRequest"
+      responses:
+        "200":
+          description: 更新した日エントリ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DayEntry"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteDay
+      summary: 日エントリを削除する
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/shopping:
+    post:
+      operationId: createShoppingItem
+      summary: 買い物アイテムを追加する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateShoppingItemRequest"
+      responses:
+        "201":
+          description: 作成した買い物アイテム
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingItem"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/shopping/reorder:
+    post:
+      operationId: reorderShoppingItems
+      summary: 買い物アイテムの順序を変更する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReorderShoppingItemsRequest"
+      responses:
+        "204":
+          description: 並び替え成功
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/shopping/{id}:
+    put:
+      operationId: updateShoppingItem
+      summary: 買い物アイテムを更新する
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateShoppingItemRequest"
+      responses:
+        "200":
+          description: 更新した買い物アイテム
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingItem"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteShoppingItem
+      summary: 買い物アイテムを削除する
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ID:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    Unauthorized:
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: リソースが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    BadRequest:
+      description: リクエスト不正
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    BlockSummary:
+      type: object
+      required: [id, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    Block:
+      type: object
+      required: [id, created_at, days, shopping_items]
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/DayEntry"
+        shopping_items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShoppingItem"
+
+    DayEntry:
+      type: object
+      required: [id, block_id, date]
+      properties:
+        id:
+          type: string
+          format: uuid
+        block_id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        note:
+          type: string
+          nullable: true
+        lunch:
+          type: string
+          nullable: true
+        dinner:
+          type: string
+          nullable: true
+
+    ShoppingItem:
+      type: object
+      required: [id, block_id, name, checked, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        block_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        note:
+          type: string
+          nullable: true
+        checked:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    CreateDayRequest:
+      type: object
+      required: [block_id, date]
+      properties:
+        block_id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+
+    UpdateDayRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          nullable: true
+        lunch:
+          type: string
+          nullable: true
+        dinner:
+          type: string
+          nullable: true
+
+    CreateShoppingItemRequest:
+      type: object
+      required: [block_id, name]
+      properties:
+        block_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    ReorderShoppingItemsRequest:
+      type: object
+      required: [ids]
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    UpdateShoppingItemRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        checked:
+          type: boolean
+        note:
+          type: string
+          nullable: true
+
+    UserInfo:
+      type: object
+      required: [sub]
+      properties:
+        sub:
+          type: string
+        name:
+          type: string
+          nullable: true
+
+    OIDCConfig:
+      type: object
+      required: [enabled]
+      properties:
+        enabled:
+          type: boolean
+        issuer:
+          type: string
+          nullable: true
+        client_id:
+          type: string
+          nullable: true
+        audience:
+          type: string
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string

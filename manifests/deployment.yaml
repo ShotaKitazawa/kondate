@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kondate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kondate
+  template:
+    metadata:
+      labels:
+        app: kondate
+    spec:
+      containers:
+        - name: kondate
+          image: ghcr.io/ShotaKitazawa/kondate:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_PATH
+              value: /data/app.db
+            - name: AUTH0_DOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: kondate-auth0
+                  key: domain
+            - name: AUTH0_AUDIENCE
+              valueFrom:
+                secretKeyRef:
+                  name: kondate-auth0
+                  key: audience
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: kondate-data
