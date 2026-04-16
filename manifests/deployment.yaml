@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: kondate
-          image: ghcr.io/ShotaKitazawa/kondate:latest
+          image: ghcr.io/shotakitazawa/kondate:latest
           ports:
             - containerPort: 8080
           env:
