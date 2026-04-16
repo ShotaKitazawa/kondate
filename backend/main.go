@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/ShotaKitazawa/kondate/internal/api"
 	"github.com/ShotaKitazawa/kondate/internal/database"
@@ -44,7 +45,8 @@ func main() {
 		oidcIssuer = mustGetenv("OIDC_ISSUER")
 		oidcAudience := mustGetenv("OIDC_AUDIENCE")
 		oidcClientID := mustGetenv("OIDC_CLIENT_ID")
-		sec, err = middleware.NewOIDCSecurityHandler(ctx, oidcIssuer, oidcAudience)
+		allowedSubs := strings.Split(mustGetenv("OIDC_ALLOWED_SUBS"), ",")
+		sec, err = middleware.NewOIDCSecurityHandler(ctx, oidcIssuer, oidcAudience, allowedSubs)
 		if err != nil {
 			slog.Error("create auth handler", "error", err)
 			os.Exit(1)
