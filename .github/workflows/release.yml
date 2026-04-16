@@ -21,7 +21,9 @@ jobs:
 
       - name: Set image tag
         working-directory: manifests
-        run: kustomize edit set image ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+        run: |
+          IMAGE=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          kustomize edit set image ${IMAGE}:${{ github.ref_name }}
 
       - name: Build manifests
         run: kustomize build ./manifests > install.yaml
