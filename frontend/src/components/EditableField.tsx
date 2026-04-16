@@ -49,7 +49,7 @@ export function EditableField({ value, placeholder, onSave, disabled, className 
         setDraft(value);
         setEditing(true);
       }}
-      style={{ cursor: disabled ? "default" : "pointer" }}
+      style={{ cursor: disabled ? "default" : "pointer", display: "block", flex: 1 }}
     >
       {value || <span style={{ opacity: 0.4 }}>{placeholder}</span>}
     </span>

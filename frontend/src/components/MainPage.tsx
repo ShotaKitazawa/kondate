@@ -95,6 +95,14 @@ export function MainPage({ getToken }: Props) {
     if (data) setBlock(data);
   }, [blockIndex, blockList]);
 
+  // 10秒ごとに自動リフレッシュ（タブが表示中のみ）
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") refresh();
+    }, 10000);
+    return () => clearInterval(id);
+  }, [refresh]);
+
   // 計算値
   const isFirst = blockIndex === 0;
   const isLast = blockIndex === blockList.length - 1;
