@@ -20,16 +20,26 @@ spec:
           env:
             - name: DB_PATH
               value: /data/app.db
-            - name: AUTH0_DOMAIN
+            - name: OIDC_ISSUER
               valueFrom:
                 secretKeyRef:
-                  name: kondate-auth0
-                  key: domain
-            - name: AUTH0_AUDIENCE
+                  name: kondate-oidc
+                  key: issuer
+            - name: OIDC_AUDIENCE
               valueFrom:
                 secretKeyRef:
-                  name: kondate-auth0
+                  name: kondate-oidc
                   key: audience
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: kondate-oidc
+                  key: client_id
+            - name: OIDC_ALLOWED_SUBS
+              valueFrom:
+                secretKeyRef:
+                  name: kondate-oidc
+                  key: allowed_subs
           volumeMounts:
             - name: data
               mountPath: /data
@@ -41,5 +51,4 @@ spec:
             periodSeconds: 10
       volumes:
         - name: data
-          persistentVolumeClaim:
-            claimName: kondate-data
+          emptyDir: {}
