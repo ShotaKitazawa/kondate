@@ -1,6 +1,7 @@
 # Go
 backend/tmp/
 backend/build-errors.log
+backend/.deps_age_cache
 
 # Static embed placeholder (built by Dockerfile)
 backend/static/

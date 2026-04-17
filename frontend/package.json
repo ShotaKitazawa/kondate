@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "openapi-ts": "openapi-typescript ../openapi.yaml -o src/gen/api.d.ts",
-    "generate-icons": "node scripts/generate-icons.mjs"
+    "generate-icons": "node scripts/generate-icons.mjs",
+    "sync:pin": "node ../scripts/sync-frontend.ts --pin"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

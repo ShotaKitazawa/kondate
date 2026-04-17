@@ -52,6 +52,9 @@ run = "go test -v ./..."
 dir = "{{config_root}}/frontend"
 run = "pnpm run test"
 
+[tasks.frontend-sync]
+run = "node {{config_root}}/scripts/sync-frontend.ts"
+
 [tasks.ci]
 depends = [
   "ci-build-backend",
@@ -60,6 +63,8 @@ depends = [
   "ci-lint-frontend",
   "ci-test-backend",
   "ci-test-frontend",
+  "ci-deps-backend",
+  "frontend-sync",
 ]
 
 [tasks.ci-build-backend]
@@ -85,6 +90,10 @@ run = "go test -v ./..."
 [tasks.ci-test-frontend]
 dir = "{{config_root}}/frontend"
 run = "pnpm run test"
+
+[tasks.ci-deps-backend]
+dir = "{{config_root}}/backend"
+run = "node {{config_root}}/scripts/check_deps_age_backend.ts"
 
 [tasks.pre-merge]
 run = [
