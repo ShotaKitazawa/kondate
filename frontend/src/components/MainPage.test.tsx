@@ -129,7 +129,7 @@ describe("MainPage", () => {
     await waitFor(() => expect(screen.getByText(/このページを完了/)).not.toBeDisabled());
   });
 
-  it("アーカイブ済みブロックにはアーカイブ解除ボタンが表示される", async () => {
+  it("アーカイブ済みブロックにはアーカイブを取り消しボタンが表示される", async () => {
     const archivedSummary: BlockSummary = {
       ...mockSummary,
       archived_at: "2026-04-12T00:00:00Z",
@@ -139,7 +139,7 @@ describe("MainPage", () => {
       return Promise.resolve(res(archivedBlock));
     });
     render(<MainPage />);
-    await waitFor(() => expect(screen.getByText(/アーカイブ解除/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/アーカイブを取り消し/)).toBeInTheDocument());
   });
 
   it("アーカイブ済みブロックでは追加・削除ボタンが非表示", async () => {
@@ -152,8 +152,8 @@ describe("MainPage", () => {
       return Promise.resolve(res(archivedBlock));
     });
     render(<MainPage />);
-    // アーカイブ解除ボタンが表示されるまで待つ（ブロックがロードされた証拠）
-    await waitFor(() => expect(screen.getByText(/アーカイブ解除/)).toBeInTheDocument());
+    // アーカイブを取り消しボタンが表示されるまで待つ（ブロックがロードされた証拠）
+    await waitFor(() => expect(screen.getByText(/アーカイブを取り消し/)).toBeInTheDocument());
     expect(screen.queryByText(/前に追加/)).not.toBeInTheDocument();
     expect(screen.queryByText(/後に追加/)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/削除/)).not.toBeInTheDocument();

@@ -308,8 +308,8 @@ export function MainPage({ getToken }: Props) {
         {(!isArchived || isNewestArchived) && (
           <div className="header-actions">
             {isNewestArchived && (
-              <button className="btn-ghost" onClick={handleUnarchiveBlock}>
-                アーカイブ解除
+              <button className="complete-btn" onClick={handleUnarchiveBlock}>
+                アーカイブを取り消し
               </button>
             )}
             {!isArchived && (

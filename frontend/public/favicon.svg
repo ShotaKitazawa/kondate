@@ -3,12 +3,19 @@
   <rect width="512" height="512" rx="108" fill="#5c6bc0"/>
 
   <!-- Chopstick pair: two parallel diagonal lines from upper area down to bowl -->
-  <line x1="175" y1="76" x2="264" y2="294" stroke="white" stroke-width="32" stroke-linecap="round"/>
-  <line x1="237" y1="58" x2="326" y2="276" stroke="white" stroke-width="32" stroke-linecap="round"/>
+  <!-- Chopstick 1: tapered (thick top, thin tip) -->
+  <polygon points="188,69 162,83 260,296 268,290" fill="white"/>
+  <circle cx="175" cy="76" r="14" fill="white"/>
+  <circle cx="264" cy="294" r="5" fill="white"/>
+
+  <!-- Chopstick 2: tapered -->
+  <polygon points="250,51 224,65 322,278 330,272" fill="white"/>
+  <circle cx="237" cy="58" r="14" fill="white"/>
+  <circle cx="326" cy="276" r="5" fill="white"/>
 
   <!-- Bowl rim (ellipse) -->
-  <ellipse cx="268" cy="308" rx="150" ry="27" fill="white"/>
+  <ellipse cx="256" cy="310" rx="200" ry="34" fill="white"/>
 
   <!-- Bowl body (U-curve) -->
-  <path d="M118 308 C118 436 418 436 418 308 Z" fill="white"/>
+  <path d="M56 310 C56 460 456 460 456 310 Z" fill="white"/>
 </svg>
