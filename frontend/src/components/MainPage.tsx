@@ -244,6 +244,14 @@ export function MainPage({ getToken }: Props) {
     refresh();
   };
 
+  const handleUpdateShoppingName = async (id: string, name: string) => {
+    await apiClient.PUT("/api/shopping/{id}", {
+      params: { path: { id } },
+      body: { name },
+    });
+    refresh();
+  };
+
   const handleUpdateShoppingNote = async (id: string, note: string | null) => {
     await apiClient.PUT("/api/shopping/{id}", {
       params: { path: { id } },
@@ -351,6 +359,7 @@ export function MainPage({ getToken }: Props) {
         items={block?.shopping_items ?? []}
         onAdd={handleAddShopping}
         onToggle={handleToggleShopping}
+        onUpdateName={handleUpdateShoppingName}
         onUpdateNote={handleUpdateShoppingNote}
         onReorder={handleReorderShopping}
         onDelete={handleDeleteShopping}

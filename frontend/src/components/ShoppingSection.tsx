@@ -16,6 +16,7 @@ interface Props {
   items: ShoppingItem[];
   onAdd: (name: string) => void;
   onToggle: (id: string, checked: boolean) => void;
+  onUpdateName: (id: string, name: string) => void;
   onUpdateNote: (id: string, note: string | null) => void;
   onDelete: (id: string) => void;
   onReorder: (ids: string[]) => void;
@@ -26,6 +27,7 @@ export function ShoppingSection({
   items,
   onAdd,
   onToggle,
+  onUpdateName,
   onUpdateNote,
   onDelete,
   onReorder,
@@ -67,6 +69,7 @@ export function ShoppingSection({
                 key={item.id}
                 item={item}
                 onToggle={onToggle}
+                onUpdateName={onUpdateName}
                 onUpdateNote={onUpdateNote}
                 onDelete={onDelete}
                 disabled={disabled}

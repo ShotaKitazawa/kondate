@@ -18,6 +18,7 @@ describe("ShoppingItemRow", () => {
       <ShoppingItemRow
         item={baseItem}
         onToggle={vi.fn()}
+        onUpdateName={vi.fn()}
         onUpdateNote={vi.fn()}
         onDelete={vi.fn()}
       />,
@@ -30,6 +31,7 @@ describe("ShoppingItemRow", () => {
       <ShoppingItemRow
         item={baseItem}
         onToggle={vi.fn()}
+        onUpdateName={vi.fn()}
         onUpdateNote={vi.fn()}
         onDelete={vi.fn()}
       />,
@@ -43,6 +45,7 @@ describe("ShoppingItemRow", () => {
       <ShoppingItemRow
         item={checkedItem}
         onToggle={vi.fn()}
+        onUpdateName={vi.fn()}
         onUpdateNote={vi.fn()}
         onDelete={vi.fn()}
       />,
@@ -58,6 +61,7 @@ describe("ShoppingItemRow", () => {
       <ShoppingItemRow
         item={baseItem}
         onToggle={onToggle}
+        onUpdateName={vi.fn()}
         onUpdateNote={vi.fn()}
         onDelete={vi.fn()}
       />,
@@ -68,6 +72,28 @@ describe("ShoppingItemRow", () => {
     expect(onToggle).toHaveBeenCalledWith("item-1", true);
   });
 
+  it("アイテム名をタップすると編集できる", async () => {
+    const user = userEvent.setup();
+    const onUpdateName = vi.fn();
+    render(
+      <ShoppingItemRow
+        item={baseItem}
+        onToggle={vi.fn()}
+        onUpdateName={onUpdateName}
+        onUpdateNote={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByText("豚肉"));
+    const input = screen.getByDisplayValue("豚肉");
+    await user.clear(input);
+    await user.type(input, "鶏肉");
+    await user.keyboard("{Enter}");
+
+    expect(onUpdateName).toHaveBeenCalledWith("item-1", "鶏肉");
+  });
+
   it("削除ボタンをクリックすると onDelete が呼ばれる", async () => {
     const user = userEvent.setup();
     const onDelete = vi.fn();
@@ -75,6 +101,7 @@ describe("ShoppingItemRow", () => {
       <ShoppingItemRow
         item={baseItem}
         onToggle={vi.fn()}
+        onUpdateName={vi.fn()}
         onUpdateNote={vi.fn()}
         onDelete={onDelete}
       />,
