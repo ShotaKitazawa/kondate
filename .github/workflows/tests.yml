@@ -34,9 +34,6 @@ jobs:
         working-directory: frontend
         run: pnpm install --frozen-lockfile
 
-      - name: Run backend tests
-        run: mise run test-backend
-
       - run: mise run pre-merge
 
       - name: Check no uncommitted changes
