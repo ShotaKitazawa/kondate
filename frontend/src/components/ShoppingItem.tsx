@@ -13,7 +13,14 @@ interface Props {
   disabled?: boolean;
 }
 
-export function ShoppingItemRow({ item, onToggle, onUpdateName, onUpdateNote, onDelete, disabled }: Props) {
+export function ShoppingItemRow({
+  item,
+  onToggle,
+  onUpdateName,
+  onUpdateNote,
+  onDelete,
+  disabled,
+}: Props) {
   const [showNote, setShowNote] = useState(!!item.note);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState(item.name);
@@ -63,14 +70,22 @@ export function ShoppingItemRow({ item, onToggle, onUpdateName, onUpdateNote, on
             onChange={(e) => setNameDraft(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") commitName();
-              if (e.key === "Escape") { setEditingName(false); setNameDraft(item.name); }
+              if (e.key === "Escape") {
+                setEditingName(false);
+                setNameDraft(item.name);
+              }
             }}
             onBlur={commitName}
           />
         ) : (
           <span
             className={`shopping-item-name${item.checked ? " checked" : ""}`}
-            onClick={() => { if (!disabled) { setNameDraft(item.name); setEditingName(true); } }}
+            onClick={() => {
+              if (!disabled) {
+                setNameDraft(item.name);
+                setEditingName(true);
+              }
+            }}
             style={{ cursor: disabled ? "default" : "pointer" }}
           >
             {item.name}
