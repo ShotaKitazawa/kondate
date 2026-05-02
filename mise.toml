@@ -6,7 +6,11 @@ pnpm = "10"
 air = "latest"
 
 [tasks.dev]
-run = "mise run dev-backend & mise run dev-frontend & wait"
+run = """
+  mise run dev-backend &
+  mise run dev-frontend &
+  wait
+"""
 
 [tasks.dev-backend]
 dir = "{{config_root}}/backend"
@@ -17,15 +21,16 @@ run = "air -- --disable-oidc"
 dir = "{{config_root}}/frontend"
 run = "pnpm dev"
 
+# generate: backend and icons run in parallel, frontend waits for backend (reads generated openapi)
 [tasks.generate]
-depends = ["generate-backend", "generate-frontend"]
+depends = ["generate-frontend", "generate-icons"]
 
 [tasks.generate-backend]
 dir = "{{config_root}}/backend"
 run = "go generate ./..."
 
 [tasks.generate-frontend]
-depends = ["generate-icons"]
+depends = ["generate-backend"]
 dir = "{{config_root}}/frontend"
 run = "pnpm run openapi-ts"
 
@@ -52,52 +57,82 @@ run = "go test -v ./..."
 dir = "{{config_root}}/frontend"
 run = "pnpm run test"
 
-[tasks.frontend-sync]
-run = "node {{config_root}}/scripts/sync-frontend.ts"
-
+# ci: backend and frontend pipelines run in parallel via depends
+# ordering within each pipeline is enforced by && in ci-backend / ci-frontend
 [tasks.ci]
-depends = [
-  "ci-build-backend",
-  "ci-build-frontend",
-  "ci-lint-backend",
-  "ci-lint-frontend",
-  "ci-test-backend",
-  "ci-test-frontend",
-  "ci-deps-backend",
-  "frontend-sync",
-]
+depends = ["ci-backend", "ci-frontend"]
 
-[tasks.ci-build-backend]
+[tasks.ci-backend]
+run = """
+  mise run ci-install-backend &&
+  mise run ci-deps-backend &&
+  mise run ci-fmt-backend &&
+  mise run ci-lint-backend &&
+  mise run ci-test-backend &&
+  mise run ci-build-backend
+"""
+
+[tasks.ci-frontend]
+run = """
+  mise run ci-install-frontend &&
+  mise run ci-deps-frontend &&
+  mise run ci-fmt-frontend &&
+  mise run ci-lint-frontend &&
+  mise run ci-test-frontend &&
+  mise run ci-build-frontend
+"""
+
+# individual tasks — no depends, safe to run standalone
+[tasks.ci-install-backend]
 dir = "{{config_root}}/backend"
-run = "go build ./..."
-
-[tasks.ci-build-frontend]
-dir = "{{config_root}}/frontend"
-run = "pnpm run build"
-
-[tasks.ci-lint-backend]
-dir = "{{config_root}}/backend"
-run = "golangci-lint run"
-
-[tasks.ci-lint-frontend]
-dir = "{{config_root}}/frontend"
-run = "pnpm run lint"
-
-[tasks.ci-test-backend]
-dir = "{{config_root}}/backend"
-run = "go test -v ./..."
-
-[tasks.ci-test-frontend]
-dir = "{{config_root}}/frontend"
-run = "pnpm run test"
+run = "go mod download"
 
 [tasks.ci-deps-backend]
 dir = "{{config_root}}/backend"
 run = "node {{config_root}}/scripts/check_deps_age_backend.ts"
 
+[tasks.ci-fmt-backend]
+dir = "{{config_root}}/backend"
+run = "test -z \"$(gofmt -l .)\""
+
+[tasks.ci-lint-backend]
+dir = "{{config_root}}/backend"
+run = "golangci-lint run"
+
+[tasks.ci-test-backend]
+dir = "{{config_root}}/backend"
+run = "go test -v ./..."
+
+[tasks.ci-build-backend]
+dir = "{{config_root}}/backend"
+run = "go build ./..."
+
+[tasks.ci-install-frontend]
+dir = "{{config_root}}/frontend"
+run = "pnpm install --frozen-lockfile"
+
+[tasks.ci-deps-frontend]
+run = "node {{config_root}}/scripts/sync-frontend.ts"
+
+[tasks.ci-fmt-frontend]
+dir = "{{config_root}}/frontend"
+run = "pnpm exec oxfmt --check ."
+
+[tasks.ci-lint-frontend]
+dir = "{{config_root}}/frontend"
+run = "pnpm run lint"
+
+[tasks.ci-test-frontend]
+dir = "{{config_root}}/frontend"
+run = "pnpm run test"
+
+[tasks.ci-build-frontend]
+dir = "{{config_root}}/frontend"
+run = "pnpm run build"
+
 [tasks.pre-merge]
-run = [
-  "mise run generate",
-  "mise run format",
-  "mise run ci",
-]
+run = """
+  mise run generate &&
+  mise run format &&
+  mise run ci
+"""
