@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ShotaKitazawa/kondate/internal/api"
 )
@@ -20,6 +21,8 @@ func WithAuthHeader(ctx context.Context, authHeader string) context.Context {
 	return context.WithValue(ctx, authHeaderKey, authHeader)
 }
 
+const userinfoCacheTTL = 60 * time.Second
+
 func (h *Handler) GetUserInfo(ctx context.Context) (api.GetUserInfoRes, error) {
 	if h.oidcIssuer == "" {
 		name := api.OptNilString{}
@@ -32,6 +35,13 @@ func (h *Handler) GetUserInfo(ctx context.Context) (api.GetUserInfoRes, error) {
 	if token == "" {
 		return &api.ErrorResponse{Message: "unauthorized"}, nil
 	}
+
+	h.userinfoMu.Lock()
+	if cached, ok := h.userinfoCache[token]; ok && time.Now().Before(cached.expiresAt) {
+		h.userinfoMu.Unlock()
+		return cached.result, nil
+	}
+	h.userinfoMu.Unlock()
 
 	userinfoURL := strings.TrimSuffix(h.oidcIssuer, "/") + "/userinfo"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, userinfoURL, nil)
@@ -70,5 +80,10 @@ func (h *Handler) GetUserInfo(ctx context.Context) (api.GetUserInfoRes, error) {
 	if claims.Name != "" {
 		result.Name.SetTo(claims.Name)
 	}
+
+	h.userinfoMu.Lock()
+	h.userinfoCache[token] = userinfoCache{result: result, expiresAt: time.Now().Add(userinfoCacheTTL)}
+	h.userinfoMu.Unlock()
+
 	return result, nil
 }
