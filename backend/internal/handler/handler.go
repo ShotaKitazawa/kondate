@@ -2,6 +2,7 @@ package handler
 
 import (
 	"database/sql"
+	"sync"
 	"time"
 
 	"github.com/ShotaKitazawa/kondate/internal/api"
@@ -16,18 +17,32 @@ type OIDCConfig struct {
 	Audience string
 }
 
+type userinfoCache struct {
+	result    api.GetUserInfoRes
+	expiresAt time.Time
+}
+
 // Handler implements api.Handler.
 type Handler struct {
 	db         *sql.DB
 	q          *sqlcgen.Queries
 	oidcIssuer string      // empty when --disable-oidc
 	oidcConfig *OIDCConfig // nil when --disable-oidc
+
+	userinfoMu    sync.Mutex
+	userinfoCache map[string]userinfoCache // keyed by access token
 }
 
 // New creates a Handler backed by db.
 // oidcIssuer is the OIDC issuer URL; pass empty string when --disable-oidc.
 func New(db *sql.DB, oidcIssuer string, oidcConfig *OIDCConfig) *Handler {
-	return &Handler{db: db, q: sqlcgen.New(db), oidcIssuer: oidcIssuer, oidcConfig: oidcConfig}
+	return &Handler{
+		db:            db,
+		q:             sqlcgen.New(db),
+		oidcIssuer:    oidcIssuer,
+		oidcConfig:    oidcConfig,
+		userinfoCache: make(map[string]userinfoCache),
+	}
 }
 
 // --- conversion helpers ---
