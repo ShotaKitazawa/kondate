@@ -1,7 +1,7 @@
-# Versions are sourced from mise.toml via build-args in CI
-ARG NODE_VERSION=24
-ARG GO_VERSION=1.26
-ARG PNPM_VERSION=10.33.0
+# Versions are sourced from mise.toml via build-args in CI (see .github/workflows/build.yml)
+ARG NODE_VERSION
+ARG GO_VERSION
+ARG PNPM_VERSION
 
 # Stage 1: Build frontend
 FROM node:${NODE_VERSION}-alpine AS frontend-builder
