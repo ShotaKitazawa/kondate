@@ -1,6 +1,12 @@
+# Versions are sourced from mise.toml via build-args in CI
+ARG NODE_VERSION=24
+ARG GO_VERSION=1.26
+ARG PNPM_VERSION=10.33.0
+
 # Stage 1: Build frontend
-FROM node:24-alpine AS frontend-builder
-RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+FROM node:${NODE_VERSION}-alpine AS frontend-builder
+ARG PNPM_VERSION
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/pnpm-lock.yaml frontend/pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
@@ -8,7 +14,8 @@ COPY frontend/ ./
 RUN pnpm run build
 
 # Stage 2: Build backend (with embedded frontend)
-FROM golang:1.26-alpine AS backend-builder
+ARG GO_VERSION
+FROM golang:${GO_VERSION}-alpine AS backend-builder
 WORKDIR /app
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
